@@ -1,0 +1,46 @@
+# .gitignore para ProjetoLead
+# Regras para backend (.NET) e frontend (Blazor / Node)
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# IDEs / editores
+.vscode/
+.vs/
+.idea/
+
+# Build outputs
+**/bin/
+**/obj/
+**/publish/
+
+# NuGet
+*.nupkg
+packages/
+.nuget/
+
+# Visual Studio / Rider / user files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Logs
+*.log
+
+# Frontend build artifacts
+dist/
+build/
+wwwroot/_framework/
+wwwroot/**/*.bundle.js
+wwwroot/**/*.bundle.css
+
+# Blazor / wasm
+blazor.boot.json
+
+# Optional: ignore local environment files
+.env
+.env.local
+
+# End of file

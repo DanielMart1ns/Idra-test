@@ -7,6 +7,11 @@ namespace MinhaApiRest.Data
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-        public DbSet<Lead> Leads { get; set; }
+        public DbSet<Lead> CadastroLead { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Lead>().ToTable("cadastrolead");
+        }
     }
 }

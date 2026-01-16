@@ -1,7 +1,12 @@
 @page "/admin"
 
+@inject NavigationManager Navigation
+@inject IDialogService DialogService
+
 @using System.Text.RegularExpressions
 @using System.ComponentModel.DataAnnotations
+@using frontend.Components
+
 
 <h3>Cadastrar Lead</h3>
 <span>Insira os dados necessários de cadastro</span>
@@ -58,7 +63,7 @@
         </MudPaper>
 
         <MudPaper Class="pa-4 mt-4">
-            <MudButton Variant="Variant.Filled" Disabled="!success" Color="Color.Success" DropShadow="false" OnClick="@(()=>form.Validate())">Salvar</MudButton>
+            <MudButton Variant="Variant.Filled" Disabled="!success" Color="Color.Success" DropShadow="false" OnClick="RegiterLead">Salvar</MudButton>
             <MudButton Variant="Variant.Filled" Color="Color.Secondary" DropShadow="false" OnClick="@(()=>form.ResetAsync())" Class="mx-2">Reset</MudButton>
             <MudButton Variant="Variant.Filled" DropShadow="false" OnClick="@(()=>form.ResetValidation())">Reset Validation</MudButton>
         </MudPaper>
@@ -95,6 +100,44 @@
 
     private bool cepvalid = false;
 
+    private async Task RegiterLead()
+    {
+        Leads.Model.Lead? lead = new Leads.Model.Lead
+        {
+            Cnpj = cnpj,
+            RazaoSocial = razaoSocial,
+            Cep = cep,
+            Endereco = endereco,
+            Numero = numero ?? 0,
+            Complemento = complemento,
+            Bairro = bairro,
+            Cidade = cidade,
+            Estado = estado
+        };
+
+        HttpClient? client = new HttpClient();
+
+        HttpResponseMessage? res = await client.PostAsJsonAsync("http://localhost:5107/api/lead/register", lead);
+        if (res.IsSuccessStatusCode)
+        {
+            DialogParameters? parameters = new DialogParameters { ["Message"] = "Lead cadastrado com sucesso!" };
+            DialogOptions? options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true };
+            
+            var dialogRef = DialogService.Show<SuccessDialog>("SucessDialog", parameters, options);
+
+            // aguarda o usuário fechar o diálogo
+            var result = await dialogRef.Result;
+
+            Navigation.NavigateTo("/");
+        }
+        else
+        {
+            DialogParameters? parameters = new DialogParameters { ["Message"] = "Erro ao cadastrar lead. Por favor, revise os dados e tente novamente" };
+            DialogOptions? options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true };
+            DialogService.ShowAsync<ErrorDialog>("ErrorDialog", parameters, options);
+        }
+    }
+
     private async Task GetAddress(string cep)
     {
         string formatedCep = cep.Replace("-", "");
@@ -123,5 +166,5 @@
 
         errors = Array.Empty<string>();
         cepvalid = true;
-    }
+    }    
 }

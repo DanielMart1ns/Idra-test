@@ -13,6 +13,13 @@
 
 <h2 class="my-4 fs-4">Lista de Leads Cadastrados</h2>
 
+<MudTextField @bind-Value="_searchText"
+              Placeholder="Pesquisar por Razão Social ou CNPJ"
+              Adornment="Adornment.Start"
+              AdornmentIcon="@Icons.Material.Filled.Search"
+              Class="mb-4"
+              Immediate="true"
+              OnKeyUp="@(e => ApplyFilter())" />
 
 
 <MudTable Items="@Leads" HeaderClass="bg-dark" Hover="true" Striped="true" Bordered="true" Loading="@_loading" LoadingProgressColor="Color.Info">
@@ -86,10 +93,25 @@
     protected override async Task OnInitializedAsync()
     {
         _loading = true;
+        
+        using HttpClient? client = new HttpClient();
+        HttpResponseMessage? response = await client.GetAsync("http://localhost:5107/api/lead/get-all");
 
-        HttpClient? client = new HttpClient();
-
-        Leads = await client.GetFromJsonAsync<List<Lead>>("http://localhost:5107/api/lead/get-all");
+        if (response.IsSuccessStatusCode)
+        {
+            Leads = await response.Content.ReadFromJsonAsync<List<Lead>>();
+        }
+        else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            Console.WriteLine("Nenhum lead encontrado");
+            Leads = new List<Lead>(); // garante lista vazia
+        }
+        else
+        {
+            // outros erros (500, 401, etc.)
+            Console.WriteLine($"Erro ao buscar leads: {response.StatusCode}");
+            Leads = new List<Lead>();
+        }
 
         _loading = false;
     }

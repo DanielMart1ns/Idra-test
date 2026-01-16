@@ -38,11 +38,18 @@
         if (response.IsSuccessStatusCode)
         {
             MudDialog.Close(DialogResult.Ok(true));
+
+            DialogParameters? parameters = new DialogParameters { ["Message"] = "Lead cadastrado com sucesso!" };
+            DialogOptions? options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true };
+            DialogService.Show<SuccessDialog>("SucessDialog", parameters, options);
+
             StateHasChanged();
         }
         else
         {
-            //TODO
+            DialogParameters? parameters = new DialogParameters { ["Message"] = "Erro ao editar lead. Por favor, revise os dados e tente novamente" };
+            DialogOptions? options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true };
+            DialogService.ShowAsync<ErrorDialog>("ErrorDialog", parameters, options);
         }
     }
 

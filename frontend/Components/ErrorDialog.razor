@@ -1,0 +1,15 @@
+<MudDialog>
+    <DialogContent>
+        <MudIcon Color="Color.Error" Icon="@Icons.Material.Filled.Error" Size="Size.Large" />
+        <MudText Color="Color.Error">@Message</MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@(()=> MudDialog.Close())" Color="Color.Primary">Fechar</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] 
+    IMudDialogInstance MudDialog { get; set; }
+    [Parameter] public string? Message { get; set; }
+}

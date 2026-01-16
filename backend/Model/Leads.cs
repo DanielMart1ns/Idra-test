@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Leads.Model
@@ -5,9 +6,10 @@ namespace Leads.Model
     [Table("cadastrolead")] // nome da tabela no banco
     public class Lead
     {
-        [Column("id")]
-        public long Id { get; set; }
+        // [Column("id")]
+        // public long Id { get; set; }
 
+        [Key]
         [Column("cnpj")]
         public required string Cnpj { get; set; }
 

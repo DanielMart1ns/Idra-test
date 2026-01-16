@@ -13,9 +13,9 @@ namespace Leads.Model
 
         public required string Endereco { get; set; }
 
-        public required string Numero { get; set; }
+        public required int Numero { get; set; }
 
-        public required string Complemento { get; set; }
+        public string? Complemento { get; set; }
 
         public required string Bairro { get; set; }
 

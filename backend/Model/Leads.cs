@@ -23,10 +23,10 @@ namespace Leads.Model
         public required string Endereco { get; set; }
 
         [Column("numero")]
-        public required string Numero { get; set; }
+        public required int Numero { get; set; }
 
         [Column("complemento")]
-        public required string Complemento { get; set; }
+        public string? Complemento { get; set; }
 
         [Column("bairro")]
         public required string Bairro { get; set; }

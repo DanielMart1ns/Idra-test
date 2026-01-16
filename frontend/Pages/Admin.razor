@@ -1,0 +1,127 @@
+@page "/admin"
+
+@using System.Text.RegularExpressions
+@using System.ComponentModel.DataAnnotations
+
+<h3>Cadastrar Lead</h3>
+<span>Insira os dados necessários de cadastro</span>
+
+<MudGrid Class="mt-2">
+    <MudItem xs="12" sm="7">
+        <MudPaper Class="pa-4">
+            <MudForm Class="d-flex flex-column gap-4" @ref="form" @bind-IsValid="@success" @bind-Errors="@errors">
+                <MudTextField T="string"
+                              Label="CNPJ"
+                              Mask="@CnpjMask"
+                              @bind-Value="cnpj"
+                              Required="true"
+                              RequiredError="Insira o CNPJ" />
+
+                <MudTextField T="string"
+                              Label="Razão Social"
+                              @bind-Value="razaoSocial"
+                              Required="true"
+                              RequiredError="Insira a razão social" />
+
+                <div class="d-flex gap-5">
+                    <MudTextField @bind-Value="cep"
+                                  T="string"
+                                  Label="CEP"
+                                  Mask="@CepMask"
+                                  InputType="InputType.Text"
+                                  RequiredError="Insira o CEP" />
+
+                    <MudButton Disabled="cep is null || cep.Length < 9"
+                               Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               EndIcon="@Icons.Material.Filled.Search"
+                               OnClick="@(()=>GetAddress(cep))">
+                        Pesquisar
+                    </MudButton>
+                </div>
+
+                <span class="text-secondary">Obs.: Os dados serão preenchidos automaticamente após o preenchimento do CEP. Indique apenas o N° e complemento após a consulta.</span>
+
+                <div class="d-flex gap-x-3">
+                    <MudTextField Disabled T="string" Label="Endereço" @bind-Value="endereco" />
+                    <MudTextField Disabled="!cepvalid" class="w-25" T="int?" Label="N°" @bind-Value="numero" InputType="InputType.Number" />
+                </div>
+                <div class="d-flex gap-x-3">
+                    <MudTextField Disabled="!cepvalid" T="string" Label="Complemento" @bind-Value="complemento" />
+                    <MudTextField Disabled T="string" Label="Bairro" @bind-Value="bairro" />
+                </div>
+                <div class="d-flex gap-x-3">
+                    <MudTextField Disabled T="string" Label="Cidade" @bind-Value="cidade" />
+                    <MudTextField Disabled T="string" Label="Estado" @bind-Value="estado" />
+                </div>
+            </MudForm>
+        </MudPaper>
+
+        <MudPaper Class="pa-4 mt-4">
+            <MudButton Variant="Variant.Filled" Disabled="!success" Color="Color.Success" DropShadow="false" OnClick="@(()=>form.Validate())">Salvar</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Secondary" DropShadow="false" OnClick="@(()=>form.ResetAsync())" Class="mx-2">Reset</MudButton>
+            <MudButton Variant="Variant.Filled" DropShadow="false" OnClick="@(()=>form.ResetValidation())">Reset Validation</MudButton>
+        </MudPaper>
+    </MudItem>
+
+    <MudItem xs="12" sm="5">
+        <MudPaper Class="pa-4 mud-height-full">
+            <MudText Typo="Typo.subtitle2">@($"Errors ({errors.Length})")</MudText>
+            @foreach (var error in errors)
+            {
+                <MudText Color="@Color.Error">@error</MudText>
+            }
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+@code {
+    private IMask CnpjMask = new PatternMask("00.000.000/0000-00");
+    private IMask CepMask = new PatternMask("00000-000");
+
+    bool success;
+    string[] errors = { };
+    MudForm form;
+
+    private string cnpj = "";
+    private string razaoSocial = "";
+    private string cep = "";
+    private string endereco = "";
+    private int? numero = null;
+    private string complemento = "";
+    private string bairro = "";
+    private string cidade = "";
+    private string estado = "";
+
+    private bool cepvalid = false;
+
+    private async Task GetAddress(string cep)
+    {
+        string formatedCep = cep.Replace("-", "");
+
+        using var client = new HttpClient();
+        var res = await client.GetAsync($"https://viacep.com.br/ws/{formatedCep}/json/");
+
+        if (!res.IsSuccessStatusCode)
+        {
+            errors = new[] { "CEP inválido ou não encontrado." };
+            return;
+        }
+
+        Address? data = await res.Content.ReadFromJsonAsync<Address>();
+
+        if (data == null || data.Erro == "true")
+        {
+            errors = new[] { "CEP não encontrado no ViaCEP." };
+            return;
+        }
+
+        endereco = data.Logradouro ?? "";
+        bairro = data.Bairro ?? "";
+        cidade = data.Localidade ?? "";
+        estado = data.Uf ?? "";
+
+        errors = Array.Empty<string>();
+        cepvalid = true;
+    }
+}

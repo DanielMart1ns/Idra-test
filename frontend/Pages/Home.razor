@@ -1,7 +1,54 @@
 ﻿@page "/"
+@using Leads.Model
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1 class="fs-2">Bem-vindo(a) de volta!</h1>
 
-Welcome to your new app.
+<h2 class="my-4 fs-4">Lista de Leads Cadastrados</h2>
+
+
+
+<MudTable Items="@Leads" HeaderClass="bg-dark" Hover="true" Striped="true" Bordered="true" Loading="@_loading" LoadingProgressColor="Color.Info">
+    <HeaderContent>
+        <MudTh Class="text-white fw-bold">CNPJ</MudTh>
+        <MudTh Class="text-white fw-bold">Razão Social</MudTh>
+        <MudTh Class="text-white fw-bold">CEP</MudTh>
+        <MudTh Class="text-white fw-bold">Cidade</MudTh>
+        <MudTh Class="text-white fw-bold">Estado</MudTh>
+        <MudTh Class="text-white fw-bold">Ações</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="CNPJ">@context.Cnpj</MudTd>
+        <MudTd DataLabel="Razão Social">@context.RazaoSocial</MudTd>
+        <MudTd DataLabel="CEP">@context.Cep</MudTd>
+        <MudTd DataLabel="Cidade">@context.Cidade</MudTd>
+        <MudTd DataLabel="Estado">@context.Estado</MudTd>
+        <MudTd DataLabel="Ações" Class="action-cell">
+            <MudIconButton Class="m-1" Icon="@Icons.Material.Outlined.Edit" Variant="Variant.Outlined" Color="Color.Primary" aria-label="edit" />
+            <MudIconButton Class="m-1" Icon="@Icons.Material.Outlined.Delete" Variant="Variant.Outlined" Color="Color.Secondary" aria-label="delete" />
+        </MudTd>
+    </RowTemplate>
+
+    <NoRecordsContent>
+        <MudText Color="Color.Secondary" Align="Align.Center">
+            Sem dados cadastrados
+        </MudText>
+    </NoRecordsContent>
+</MudTable>
+
+@code { 
+    private IList<Lead> Leads = new List<Lead>();
+    private bool _loading = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _loading = true;
+
+        HttpClient? client = new HttpClient();
+
+        Leads = await client.GetFromJsonAsync<List<Lead>>("http://localhost:5107/api/lead/get-all");
+
+        _loading = false;
+    }
+}

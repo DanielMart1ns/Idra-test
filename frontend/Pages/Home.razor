@@ -1,4 +1,7 @@
 ﻿@page "/"
+
+@using System.Text;
+
 @using Leads.Model
 
 <PageTitle>Home</PageTitle>
@@ -26,7 +29,7 @@
         <MudTd DataLabel="Estado">@context.Estado</MudTd>
         <MudTd DataLabel="Ações" Class="action-cell">
             <MudIconButton Class="m-1" Icon="@Icons.Material.Outlined.Edit" Variant="Variant.Outlined" Color="Color.Primary" aria-label="edit" />
-            <MudIconButton Class="m-1" Icon="@Icons.Material.Outlined.Delete" Variant="Variant.Outlined" Color="Color.Secondary" aria-label="delete" />
+            <MudIconButton @onclick="@(() => DeleteLead(@context.Cnpj))" Class="m-1" Icon="@Icons.Material.Outlined.Delete" Variant="Variant.Outlined" Color="Color.Secondary" aria-label="delete" />
         </MudTd>
     </RowTemplate>
 
@@ -40,6 +43,26 @@
 @code { 
     private IList<Lead> Leads = new List<Lead>();
     private bool _loading = false;
+
+    public async Task DeleteLead(string cnpj)
+    {
+        HttpClient? client = new HttpClient();
+
+        HttpRequestMessage? request = new HttpRequestMessage(HttpMethod.Delete, "http://localhost:5107/api/lead/delete")
+        {
+            Content = new StringContent($"\"{cnpj}\"", Encoding.UTF8, "application/json")
+        };
+
+        HttpResponseMessage? res = await client.SendAsync(request);
+
+        if(res.IsSuccessStatusCode)
+        {
+            Lead? leadToRemove = Leads.FirstOrDefault(lead => lead.Cnpj == cnpj);
+            Leads.Remove(leadToRemove);
+            Console.WriteLine($"Lead {cnpj} successfully removed");
+            StateHasChanged();
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {

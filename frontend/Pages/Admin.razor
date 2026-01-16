@@ -7,8 +7,16 @@
 @using System.ComponentModel.DataAnnotations
 @using frontend.Components
 
+<MudIconButton Class="m-1"
+    Icon="@Icons.Material.Filled.ArrowBack"
+    Variant="Variant.Outlined"
+    Color="Color.Primary"
+    Size="Size.Medium"
+    Style="border-radius:50%;"
+    aria-label="voltar"
+    OnClick="@(()=>Navigation.NavigateTo("/"))" />
 
-<h3>Cadastrar Lead</h3>
+<h3 class="mt-4">Cadastrar Lead</h3>
 <span>Insira os dados necessários de cadastro</span>
 
 <MudGrid Class="mt-2">
@@ -129,6 +137,7 @@
             var result = await dialogRef.Result;
 
             Navigation.NavigateTo("/");
+            StateHasChanged();
         }
         else
         {

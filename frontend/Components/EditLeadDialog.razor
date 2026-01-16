@@ -1,3 +1,5 @@
+@inject IDialogService DialogService
+
 @using Leads.Model
 @using MudBlazor
 @inject HttpClient Http
@@ -41,7 +43,7 @@
 
             DialogParameters? parameters = new DialogParameters { ["Message"] = "Lead cadastrado com sucesso!" };
             DialogOptions? options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true };
-            DialogService.Show<SuccessDialog>("SucessDialog", parameters, options);
+            DialogService.ShowAsync<SuccessDialog>("SucessDialog", parameters, options);
 
             StateHasChanged();
         }

@@ -1,6 +1,7 @@
 ﻿@page "/"
 
-@inject IDialogService DialogService;
+@inject IDialogService DialogService
+@inject NavigationManager Navigation
 
 @using System.Text;
 
@@ -11,9 +12,10 @@
 
 <h1 class="fs-2">Bem-vindo(a) de volta!</h1>
 
-<h2 class="my-4 fs-4">Lista de Leads Cadastrados</h2>
+<h2 class="mt-4 mb-5 fs-4">Lista de Leads Cadastrados</h2>
 
-<MudTextField @bind-Value="_searchText"
+<div class="d-flex gap-x-5 mb-5">
+    <MudTextField @bind-Value="_searchText"
               Placeholder="Pesquisar por Razão Social ou CNPJ"
               Adornment="Adornment.Start"
               AdornmentIcon="@Icons.Material.Filled.Search"
@@ -21,8 +23,18 @@
               Immediate="true"
               OnKeyUp="@(e => ApplyFilter())" />
 
+    <MudButton Class="m-1"
+                EndIcon="@Icons.Material.Filled.Add"
+                Variant="Variant.Filled"
+                Color="Color.Primary"
+                aria-label="cadastrar"
+                OnClick="@(()=>Navigation.NavigateTo("/admin"))">
+                Cadastrar
+    </MudButton>
+</div>
 
-<MudTable Items="@Leads" HeaderClass="bg-dark" Hover="true" Striped="true" Bordered="true" Loading="@_loading" LoadingProgressColor="Color.Info">
+
+<MudTable Items="@FilteredLeads" HeaderClass="bg-dark" Hover="true" Striped="true" Bordered="true" Loading="@_loading" LoadingProgressColor="Color.Info">
     <HeaderContent>
         <MudTh Class="text-white fw-bold">CNPJ</MudTh>
         <MudTh Class="text-white fw-bold">Razão Social</MudTh>
@@ -52,9 +64,30 @@
 
 @code { 
     private IList<Lead> Leads = new List<Lead>();
+    private IList<Lead> FilteredLeads = new List<Lead>();
+
     private bool _loading = false;
 
+    private string _searchText = string.Empty;
+
     private IDialogService? _dialog;
+
+    private void ApplyFilter()
+    {
+        if (string.IsNullOrWhiteSpace(_searchText))
+        {
+            FilteredLeads = Leads.ToList();
+        }
+        else
+        {
+            FilteredLeads = Leads
+                .Where(l =>
+                    (!string.IsNullOrEmpty(l.RazaoSocial) && l.RazaoSocial.Contains(_searchText, StringComparison.OrdinalIgnoreCase)) ||
+                    (!string.IsNullOrEmpty(l.Cnpj) && l.Cnpj.Contains(_searchText, StringComparison.OrdinalIgnoreCase)))
+                .ToList();
+        }
+    }
+
 
     public async Task DeleteLead(string cnpj)
     {
@@ -71,6 +104,9 @@
         {
             Lead? leadToRemove = Leads.FirstOrDefault(lead => lead.Cnpj == cnpj);
             Leads.Remove(leadToRemove);
+
+            ApplyFilter();
+
             Console.WriteLine($"Lead {cnpj} successfully removed");
             StateHasChanged();
         }
@@ -112,6 +148,8 @@
             Console.WriteLine($"Erro ao buscar leads: {response.StatusCode}");
             Leads = new List<Lead>();
         }
+
+        ApplyFilter();
 
         _loading = false;
     }

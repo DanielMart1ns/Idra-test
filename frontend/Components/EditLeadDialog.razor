@@ -1,0 +1,50 @@
+@using Leads.Model
+@using MudBlazor
+@inject HttpClient Http
+
+<MudDialog>
+    <DialogContent>
+        <MudText Typo="Typo.h6">Editar Lead</MudText>
+
+        <div class="d-flex flex-column gap-y-3">
+            <MudTextField @bind-Value="LeadData.Cnpj" Label="CNPJ" Disabled="true" />
+            <MudTextField @bind-Value="LeadData.RazaoSocial" Label="Razão Social" />
+            <MudTextField @bind-Value="LeadData.Cep" Label="CEP" />
+            <MudTextField @bind-Value="LeadData.Estado" Label="Estado" />
+            <MudTextField @bind-Value="LeadData.Cidade" Label="Cidade" />
+            <MudTextField @bind-Value="LeadData.Bairro" Label="Bairro" />
+            <MudTextField @bind-Value="LeadData.Endereco" Label="Endereco" />
+            <MudTextField @bind-Value="LeadData.Numero" Label="Numero" />
+            <MudTextField @bind-Value="LeadData.Complemento" Label="Complemento" />
+        </div>
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" Class="fw-bolder" Color="Color.Secondary" OnClick="Cancel">Cancelar</MudButton>
+        <MudButton Variant="Variant.Filled" Class="fw-bolder" Color="Color.Success" OnClick="Save">Salvar</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] 
+    IMudDialogInstance MudDialog { get; set; }
+
+    [Parameter] public Lead LeadData { get; set; }
+
+    private async Task Save()
+    {
+        HttpResponseMessage? response = await Http.PutAsJsonAsync("http://localhost:5107/api/lead/update", LeadData);
+
+        if (response.IsSuccessStatusCode)
+        {
+            MudDialog.Close(DialogResult.Ok(true));
+            StateHasChanged();
+        }
+        else
+        {
+            //TODO
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}

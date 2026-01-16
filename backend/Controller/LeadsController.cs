@@ -136,7 +136,7 @@ public class LeadController : ControllerBase
             }
 
             _logger.LogInformation("Lead successfully deleted: CNPJ {Cnpj}", cnpj);
-            return StatusCode(204, "Lead successfully deleted");
+            return StatusCode(200, "Lead successfully deleted");
         }
         catch (Exception ex)
         {

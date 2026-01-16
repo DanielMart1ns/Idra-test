@@ -1,8 +1,11 @@
 ﻿@page "/"
 
+@inject IDialogService DialogService;
+
 @using System.Text;
 
 @using Leads.Model
+@using frontend.Components
 
 <PageTitle>Home</PageTitle>
 
@@ -28,8 +31,8 @@
         <MudTd DataLabel="Cidade">@context.Cidade</MudTd>
         <MudTd DataLabel="Estado">@context.Estado</MudTd>
         <MudTd DataLabel="Ações" Class="action-cell">
-            <MudIconButton Class="m-1" Icon="@Icons.Material.Outlined.Edit" Variant="Variant.Outlined" Color="Color.Primary" aria-label="edit" />
-            <MudIconButton @onclick="@(() => DeleteLead(@context.Cnpj))" Class="m-1" Icon="@Icons.Material.Outlined.Delete" Variant="Variant.Outlined" Color="Color.Secondary" aria-label="delete" />
+            <MudIconButton OnClick="@(() => OpenEditDialog(@context))" Class="m-1" Icon="@Icons.Material.Outlined.Edit" Variant="Variant.Outlined" Color="Color.Primary" aria-label="edit" />
+            <MudIconButton OnClick="@(() => DeleteLead(@context.Cnpj))" Class="m-1" Icon="@Icons.Material.Outlined.Delete" Variant="Variant.Outlined" Color="Color.Secondary" aria-label="delete" />
         </MudTd>
     </RowTemplate>
 
@@ -43,6 +46,8 @@
 @code { 
     private IList<Lead> Leads = new List<Lead>();
     private bool _loading = false;
+
+    private IDialogService? _dialog;
 
     public async Task DeleteLead(string cnpj)
     {
@@ -62,6 +67,20 @@
             Console.WriteLine($"Lead {cnpj} successfully removed");
             StateHasChanged();
         }
+    }
+
+    public void OpenEditDialog(Lead leadData)
+    {
+        DialogParameters? parameters = new DialogParameters {[parameterName: "LeadData"] = leadData};
+        
+        DialogOptions? options = new DialogOptions 
+        { 
+            CloseButton = true, 
+            MaxWidth = MaxWidth.Medium, 
+            FullWidth = true
+        };
+        
+        IDialogReference _dialog = DialogService.Show<EditLeadDialog>("Editar Lead", parameters, options);
     }
 
     protected override async Task OnInitializedAsync()
